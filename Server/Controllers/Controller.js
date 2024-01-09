@@ -40,9 +40,6 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-
-  console.log("email: ", email, "password: ", password);
-
   const user = await User.findOne({ email });
 
   if (user === null) {
@@ -72,9 +69,7 @@ const login = async (req, res) => {
 };
 
 const logout = async (req, res) => {
-  res
-    .clearCookie("token")
-    .json({ success: true, message: "Logout Successful" });
+  res.cookie("token", "").json({ success: true, message: "Logout Successful" });
 };
 
 const checkUser = async (req, res) => {
@@ -88,4 +83,19 @@ const checkUser = async (req, res) => {
   res.json({ success: true, message: "User Verified" });
 };
 
-module.exports = { signup, login, logout, checkUser };
+const getUser = async (req, res) => {
+  const userId = req.id;
+  let user;
+  try {
+    user = await User.findById(userId, "-password");
+  } catch (error) {
+    console.log(error.message);
+  }
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+  return res.status(200).json({ success: true, message: user });
+};
+
+module.exports = { signup, login, logout, checkUser, getUser };
