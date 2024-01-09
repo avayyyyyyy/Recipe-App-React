@@ -20,9 +20,15 @@ const signup = async (req, res) => {
 
     let id = await Inserted._id;
 
-    let token = jwt.sign({ id, email }, process.env.JWT_SECRET_KEY);
+    let token = jwt.sign({ id, email }, process.env.JWT_SECRET_KEY, {
+      expiresIn: "1h",
+    });
     res
-      .cookie("token", token)
+      .cookie("token", token, {
+        httpOnly: true,
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
+      })
+      .status(200)
       .json({ success: true, message: "User Successfully Created!" });
   } catch (error) {
     res.json({
@@ -47,13 +53,36 @@ const login = async (req, res) => {
   if (comparedPass) {
     let id = await user._id;
 
-    let token = jwt.sign({ id, email }, process.env.JWT_SECRET_KEY);
+    let token = jwt.sign({ id, email }, process.env.JWT_SECRET_KEY, {
+      expiresIn: "1h",
+    });
     res
-      .cookie("token", token)
-      .json({ success: true, message: "User Successfully Created!" });
+      .cookie("token", token, {
+        httpOnly: true,
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
+      })
+      .status(200)
+      .json({ success: true, message: "User Logged In Successfully!" });
   } else {
     res.json({ success: false, message: "Invalid Credentials" });
   }
 };
 
-module.exports = { signup, login };
+const logout = async (req, res) => {
+  res
+    .clearCookie("token")
+    .json({ success: true, message: "Logout Successful" });
+};
+
+const checkUser = async (req, res) => {
+  const id = req.message.id;
+  const findUser = await User.findOne({ id });
+
+  if (!findUser) {
+    res.json({ success: false, message: "Login First" });
+  }
+
+  res.json({ success: true, message: "User Verified" });
+};
+
+module.exports = { signup, login, logout, checkUser };

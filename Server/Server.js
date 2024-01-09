@@ -4,6 +4,7 @@ const app = express();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const router = require("./Routes");
+const { verifyUser } = require("./Middlewares/VerifyUser");
 require("dotenv").config();
 
 app.use(
@@ -14,8 +15,7 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
-app.use("/api/v1", router);
-
+app.use("/api/v1", verifyUser, router);
 
 app.listen(process.env.PORT, () => {
   connectDB(process.env.MONGO_URI);
