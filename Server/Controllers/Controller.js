@@ -20,7 +20,7 @@ const signup = async (req, res) => {
 
     let id = await Inserted._id;
 
-    let token = jwt.sign({ id, email }, process.env.JWT_SECRET_KEY, {
+    let token = jwt.sign({ id }, process.env.JWT_SECRET_KEY, {
       expiresIn: "1h",
     });
     res
@@ -41,6 +41,8 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   const { email, password } = req.body;
 
+  console.log("email: ", email, "password: ", password);
+
   const user = await User.findOne({ email });
 
   if (user === null) {
@@ -53,12 +55,13 @@ const login = async (req, res) => {
   if (comparedPass) {
     let id = await user._id;
 
-    let token = jwt.sign({ id, email }, process.env.JWT_SECRET_KEY, {
+    let token = jwt.sign({ id }, process.env.JWT_SECRET_KEY, {
       expiresIn: "1h",
     });
+
     res
       .cookie("token", token, {
-        httpOnly: true,
+        httpOnly: false,
         expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
       })
       .status(200)

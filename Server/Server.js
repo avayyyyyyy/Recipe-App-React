@@ -13,9 +13,10 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
+// app.use(express.cookie())
 app.use(cookieParser());
-app.use("/api/v1", verifyUser, router);
+app.use(express.json());
+app.use("/api/v1", router);
 
 app.listen(process.env.PORT, () => {
   connectDB(process.env.MONGO_URI);
